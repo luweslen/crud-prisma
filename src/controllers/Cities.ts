@@ -1,55 +1,64 @@
 import { Context } from 'koa';
 import { PrismaClient } from '@prisma/client';
-import { CountryType } from '@/types/CountryType';
+import { CityType } from '@/types/CityType';
 
 const prisma = new PrismaClient();
 
-class CountryController {
+class CityController {
   public static async create(ctx: Context):Promise<void> {
-    const { name }: CountryType = ctx.request.body;
+    const { name, state, countryId }: CityType = ctx.request.body;
 
-    const createdCountry = await prisma.countries.create({
-      data: { name },
+    const createdCity = await prisma.cities.create({
+      data: {
+        name,
+        state,
+        countryId: Number(countryId),
+      },
     });
 
     ctx.status = 201;
-    ctx.body = createdCountry;
+    ctx.body = createdCity;
   }
 
   public static async update(ctx: Context):Promise<void> {
     const { id } = ctx.params;
-    const { name } = ctx.request.body;
+    const { name, state, countryId } = ctx.request.body;
 
-    const updatedCountry = await prisma.countries.update({
+    const updatedCity = await prisma.cities.update({
       where: {
         id: Number(id),
       },
       data: {
         name,
+        state,
+        countryId: Number(countryId),
       },
     });
 
-    ctx.body = updatedCountry;
+    ctx.body = updatedCity;
   }
 
   public static async delete(ctx: Context):Promise<void> {
     const { id } = ctx.params;
 
-    const deletedCountry = await prisma.countries.delete({
+    const deletedCity = await prisma.cities.delete({
       where: {
         id: Number(id),
       },
     });
 
-    ctx.body = deletedCountry;
+    ctx.body = deletedCity;
   }
 
   public static async getOne(ctx: Context):Promise<void> {
     const { id } = ctx.params;
 
-    const countries = await prisma.countries.findUnique({
+    const countries = await prisma.cities.findUnique({
       where: {
         id: Number(id),
+      },
+      include: {
+        country: true,
       },
     });
 
@@ -58,11 +67,15 @@ class CountryController {
   }
 
   public static async getAll(ctx: Context):Promise<void> {
-    const countries = await prisma.countries.findMany();
+    const countries = await prisma.cities.findMany({
+      include: {
+        country: true,
+      },
+    });
 
     ctx.body = countries;
     ctx.status = countries.length > 0 ? 200 : 204;
   }
 }
 
-export default CountryController;
+export default CityController;

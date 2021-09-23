@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Cities {
+  id    Int    @id @default(autoincrement())
+  name  String
+  state String
+
+  country   Countries @relation(fields: [countryId], references: [id])
+  countryId Int
+}
+
+model Countries {
+  id     Int      @id @default(autoincrement())
+  name   String
+  cities Cities[]
+}
